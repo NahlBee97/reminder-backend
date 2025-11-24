@@ -22,7 +22,6 @@ export const reminderService = {
       notes: notes?.trim(),
       userId,
     };
-    console.log(sanitizeReminder);
 
     const createdReminder = await reminderModel.create(sanitizeReminder);
     return createdReminder;
@@ -38,7 +37,7 @@ export const reminderService = {
     const query = `
       UPDATE reminders 
       SET ${setClauses.join(", ")}
-      WHERE id = $${values[values.length - 1]}
+      WHERE id = $${values.length}
       RETURNING *;
     `;
 
@@ -48,16 +47,10 @@ export const reminderService = {
   },
 
   async deleteReminder(reminderId: number) {
-    const authenticatedUserId = 3;
-
     const reminder = await reminderModel.findById(reminderId);
 
     if (!reminder) {
       throw new customError("Reminder not found", 404);
-    }
-
-    if (reminder.user_id !== authenticatedUserId) {
-      throw new customError("You are not authorized to delete this reminder", 403);
     }
 
     const rowCount = await reminderModel.delete(reminderId);
